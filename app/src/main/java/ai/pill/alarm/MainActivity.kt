@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() { // Must be AppCompatActivity for Biom
                     composable("splash") {
                         SplashScreen(
                             onComplete = {
-                                navController.navigate("login") {
+                                navController.navigate("home") {
                                     popUpTo("splash") { inclusive = true }
                                 }
                             }
@@ -66,10 +66,13 @@ class MainActivity : AppCompatActivity() { // Must be AppCompatActivity for Biom
                     // 3. Home Screen
                     composable("home") {
                         HomeScreen(
-                            onAddMedicine = { /* Navigate to Add Screen later */ },
-                            onOpenAICamera = { /* Open Camera later */ }
+                            onOpenAICamera = { /* Open Camera later */ },
+                            onViewMedicines = { /* Navigate to All Medicines List later */ },
+                            onViewSchedule = { /* Already here, do nothing */ }
                         )
                     }
+
+
                 }
             }
         }
