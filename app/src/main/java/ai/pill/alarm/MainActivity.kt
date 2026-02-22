@@ -14,6 +14,7 @@ import ai.pill.alarm.screens.HomeScreen
 import ai.pill.alarm.screens.LoginScreen
 import ai.pill.alarm.screens.SplashScreen
 import ai.pill.alarm.ui.theme.AIPillAlarmTheme
+import ai.pill.alarm.screens.AddMedicineScreen
 
 class MainActivity : AppCompatActivity() { // Must be AppCompatActivity for Biometric
 
@@ -66,9 +67,14 @@ class MainActivity : AppCompatActivity() { // Must be AppCompatActivity for Biom
                     // 3. Home Screen
                     composable("home") {
                         HomeScreen(
-                            onOpenAICamera = { /* Open Camera later */ },
+                            onOpenAICamera = { navController.navigate("add_medicine") },
                             onViewMedicines = { /* Navigate to All Medicines List later */ },
                             onViewSchedule = { /* Already here, do nothing */ }
+                        )
+                    }
+                    composable("add_medicine") {
+                        AddMedicineScreen(
+                            onBack = { navController.popBackStack() }
                         )
                     }
 

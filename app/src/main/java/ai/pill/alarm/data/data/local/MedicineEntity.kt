@@ -1,4 +1,4 @@
-package ai.pill.alarm.data.local
+package ai.pill.alarm.data.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

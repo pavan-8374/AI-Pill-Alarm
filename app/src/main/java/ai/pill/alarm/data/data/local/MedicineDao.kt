@@ -1,4 +1,4 @@
-package ai.pill.alarm.data.local
+package ai.pill.alarm.data.data.local
 
 import androidx.room.Dao
 import androidx.room.Delete
