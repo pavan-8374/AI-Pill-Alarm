@@ -1,4 +1,4 @@
-package ai.pill.alarm.data.local
+package ai.pill.alarm.data.data.local
 
 import android.content.Context
 import androidx.room.Database
