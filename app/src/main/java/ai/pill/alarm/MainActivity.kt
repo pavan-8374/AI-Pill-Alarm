@@ -1,84 +1,61 @@
-package ai.pill.alarm
+package ai.pill.alarm // Make sure this matches your actual package name!
 
 import android.os.Bundle
-import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ai.pill.alarm.screens.HomeScreen
-import ai.pill.alarm.screens.LoginScreen
-import ai.pill.alarm.screens.SplashScreen
-import ai.pill.alarm.ui.theme.AIPillAlarmTheme
+import ai.pill.alarm.data.data.local.MedicineDatabase
+import ai.pill.alarm.data.data.repository.MedicineRepository
 import ai.pill.alarm.screens.AddMedicineScreen
+import ai.pill.alarm.screens.HomeScreen
+import ai.pill.alarm.userinterface.HomeViewModel
+import ai.pill.alarm.userinterface.HomeViewModelFactory
+import ai.pill.alarm.screens.AllMedicinesScreen
 
-class MainActivity : AppCompatActivity() { // Must be AppCompatActivity for Biometric
 
-    private val biometricManager by lazy { BiometricPromptManager(this) }
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 1. Initialize the Database and Repository
+        val database = MedicineDatabase.getInstance(applicationContext)
+        val repository = MedicineRepository(database.dao)
+
         setContent {
-            AIPillAlarmTheme {
-                val navController = rememberNavController()
-                val biometricResult by biometricManager.promptResults.collectAsState(initial = null)
+            // 2. Create the ViewModel using the Factory we built earlier
+            val homeViewModel: HomeViewModel = viewModel(
+                factory = HomeViewModelFactory(repository)
+            )
 
-                // Handle Biometric Results
-                LaunchedEffect(biometricResult) {
-                    if (biometricResult is BiometricPromptManager.BiometricResult.AuthenticationSuccess) {
-                        navController.navigate("home") {
-                            popUpTo("login") { inclusive = true }
-                        }
-                    } else if (biometricResult is BiometricPromptManager.BiometricResult.AuthenticationError) {
-                        Toast.makeText(this@MainActivity, "Auth Error", Toast.LENGTH_SHORT).show()
-                    }
+            // 3. Set up the Navigation
+            val navController = rememberNavController()
+
+            // splash screen or biometric login, keep them here!
+
+            NavHost(navController = navController, startDestination = "home") {
+
+                composable("home") {
+                    HomeScreen(
+                        viewModel = homeViewModel,
+                        onOpenAICamera = { navController.navigate("add_medicine") },
+                        onViewMedicines = { navController.navigate("all_medicines") },
+                        onViewSchedule = { /* TODO */ }
+                    )
                 }
-
-                NavHost(navController = navController, startDestination = "splash") {
-
-                    // 1. Splash Screen
-                    composable("splash") {
-                        SplashScreen(
-                            onComplete = {
-                                navController.navigate("home") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-                            }
-                        )
-                    }
-
-                    // 2. Login Screen (Fingerprint)
-                    composable("login") {
-                        LoginScreen(
-                            onLoginClick = {
-                                biometricManager.showBiometricPrompt(
-                                    title = "AI Pill Alarm",
-                                    description = "Use your fingerprint to access your meds."
-                                )
-                            }
-                        )
-                    }
-
-                    // 3. Home Screen
-                    composable("home") {
-                        HomeScreen(
-                            onOpenAICamera = { navController.navigate("add_medicine") },
-                            onViewMedicines = { /* Navigate to All Medicines List later */ },
-                            onViewSchedule = { /* Already here, do nothing */ }
-                        )
-                    }
-                    composable("add_medicine") {
-                        AddMedicineScreen(
-                            onBack = { navController.popBackStack() }
-                        )
-                    }
-
-
+                composable("add_medicine") {
+                    AddMedicineScreen(
+                        viewModel = homeViewModel, // Pass the ViewModel
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("all_medicines") {
+                    AllMedicinesScreen(
+                        viewModel = homeViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
             }
         }

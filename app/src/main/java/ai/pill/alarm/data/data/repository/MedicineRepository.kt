@@ -6,10 +6,12 @@ import kotlinx.coroutines.flow.Flow
 
 class MedicineRepository(private val dao: MedicineDao) {
 
-    // 1. Get the stream of all medicines from the database
-    val allMedicines: Flow<List<MedicineEntity>> = dao.getAllMedicines()
+    // Grabs the open pipe of medicines from the DAO
+    fun getAllMedicines(): Flow<List<MedicineEntity>> {
+        return dao.getAllMedicines()
+    }
 
-    // 2. Insert a new medicine (runs on a background thread automatically)
+    // Tells the DAO to save a new medicine
     suspend fun insertMedicine(medicine: MedicineEntity) {
         dao.insertMedicine(medicine)
     }
