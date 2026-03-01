@@ -40,11 +40,13 @@ import java.util.Date
 import java.util.Locale
 import ai.pill.alarm.userinterface.AlarmSchedulerDialog
 import ai.pill.alarm.userinterface.AlarmSchedule
+import ai.pill.alarm.userinterface.HomeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedicineScreen(onBack: () -> Unit) {
+fun AddMedicineScreen(viewModel: HomeViewModel,
+                      onBack: () -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -227,7 +229,26 @@ fun AddMedicineScreen(onBack: () -> Unit) {
 
             // Save Entry Button
             Button(
-                onClick = { /* TODO: Save to Room DB */ },
+                onClick = {
+                    // 1. Ensure they entered a name
+                    if (pillName.isNotBlank()) {
+                        // 2. Create the Database Entity
+                        val newMedicine = ai.pill.alarm.data.data.local.MedicineEntity(
+                            name = pillName,
+                            instructions = instructions,
+                            imageUriAsString = capturedImageUri?.toString(),
+                            schedules = savedSchedules.toList()
+                        )
+
+                        // 3. Send to Room Database!
+                        viewModel.addMedicine(newMedicine)
+
+                        // 4. Navigate back to Home Screen
+                        onBack()
+                    } else {
+                        Toast.makeText(context, "Please enter a pill name", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C9FF)),
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp)

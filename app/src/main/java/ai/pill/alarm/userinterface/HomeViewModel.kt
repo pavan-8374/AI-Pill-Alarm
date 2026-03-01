@@ -10,33 +10,38 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * THE VIEW MODEL
+ * This acts as the bridge between your UI (HomeScreen) and your Data (Repository/Database).
+ */
 class HomeViewModel(private val repository: MedicineRepository) : ViewModel() {
 
-    // Converts the standard Flow into a StateFlow, which Jetpack Compose loves!
-    // It automatically updates the UI whenever the database changes.
-    val medicines: StateFlow<List<MedicineEntity>> = repository.allMedicines
+    /**
+     * THIS IS THE MISSING VARIABLE!
+     * We grab the Flow (the open pipe) from the database and convert it into a 'StateFlow'.
+     * StateFlow is specifically designed for Jetpack Compose UIs to read safely.
+     * Whenever a new pill is added to the database, this variable updates automatically!
+     */
+    val allMedicines: StateFlow<List<MedicineEntity>> = repository.getAllMedicines()
         .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            scope = viewModelScope, // Ties this to the lifecycle of the ViewModel
+            started = SharingStarted.WhileSubscribed(5000), // Keeps it active while UI is visible
+            initialValue = emptyList() // Start with an empty list while loading
         )
 
-    // Function to add a medicine (Called when you click "Save" on an Add Screen)
+    // Function to save a new medication
     fun addMedicine(medicine: MedicineEntity) {
         viewModelScope.launch {
             repository.insertMedicine(medicine)
         }
     }
-
-    // Function to delete a medicine
-    fun deleteMedicine(medicine: MedicineEntity) {
-        viewModelScope.launch {
-            repository.deleteMedicine(medicine)
-        }
-    }
 }
 
-// A Factory is required to pass the Repository into the ViewModel
+/**
+ * THE FACTORY
+ * Because our ViewModel requires a Repository parameter, we must use a Factory to build it.
+ * We set this up earlier in your MainActivity!
+ */
 class HomeViewModelFactory(private val repository: MedicineRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {

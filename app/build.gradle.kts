@@ -45,8 +45,10 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.coil.compose)
+    implementation(libs.material)
+    implementation("com.google.code.gson:gson:2.13.2")
 
-    // Compose UI
+// Compose UI
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -60,6 +62,7 @@ dependencies {
     // Features (Biometrics & AI)
     implementation(libs.androidx.biometric)
     implementation(libs.google.generativeai)
+    implementation(libs.androidx.databinding.adapters)
 
     // Debugging
     debugImplementation(libs.androidx.ui.tooling)

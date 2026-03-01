@@ -1,17 +1,19 @@
 [versions]
-agp = "8.13.2"
-kotlin = "2.0.0"
-ksp = "2.0.0-1.0.21"
+material = "1.13.0"
+agp = "8.9.1"
+kotlin = "2.2.21"
+ksp = "2.2.21-2.0.5"
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
-composeBom = "2026.02.00"
+composeBom = "2026.02.01"
 navigationCompose = "2.9.7"
 biometric = "1.2.0-alpha05"
 generativeai = "0.9.0"
 appcompat = "1.7.1"
 room = "2.8.4"
 coil = "2.7.0"
+databindingAdapters = "9.0.1"
 
 [libraries]
 # Core Android
@@ -20,6 +22,7 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Compose BOM (Bill of Materials)
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -41,6 +44,7 @@ google-generativeai = { group = "com.google.ai.client.generativeai", name = "gen
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-databinding-adapters = { group = "androidx.databinding", name = "databinding-adapters", version.ref = "databindingAdapters" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
