@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,12 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ai.pill.alarm.ui.theme.AIPillAlarmTheme // Make sure to import your theme!
 import kotlinx.coroutines.delay
 
 @Composable
@@ -58,51 +58,45 @@ fun SplashScreen(onComplete: () -> Unit) {
         onComplete()
     }
 
-    // Premium Dark Gradient Background
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF0F2027), // Deep Dark Blue/Black
-            Color(0xFF203A43), // Dark Teal
-            Color(0xFF2C5364)  // Slate/Teal
-        )
-    )
-
+    // We removed the hardcoded gradient so it dynamically uses your Theme's background
+    // (White in Light Mode, Dark in Dark Mode)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundGradient),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.alpha(alphaAnim)
         ) {
-            // --- Premium Logo Container (Glassmorphism effect) ---
+            // --- Premium Logo Container ---
             Box(
                 modifier = Modifier
                     .scale(scaleAnim)
                     .size(120.dp)
                     .clip(RoundedCornerShape(32.dp))
-                    .background(Color.White.copy(alpha = 0.1f)) // Translucent base
+                    // Uses your primary color (Sky Blue) with low opacity for the glass effect
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                     .border(
                         width = 1.dp,
-                        color = Color.White.copy(alpha = 0.3f), // Glass edge reflection
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(32.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                // Inner pure white circle
+                // Inner circle
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(CircleShape)
-                        .background(Color.White),
+                        .background(MaterialTheme.colorScheme.surface), // Adapts to theme surface
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Medication,
                         contentDescription = "Pill Icon",
-                        tint = Color(0xFF2C5364), // Matches the gradient
+                        tint = MaterialTheme.colorScheme.primary, // Sky Blue (or Cyan in dark mode)
                         modifier = Modifier.size(40.dp)
                     )
 
@@ -110,7 +104,7 @@ fun SplashScreen(onComplete: () -> Unit) {
                     Icon(
                         imageVector = Icons.Rounded.AutoAwesome,
                         contentDescription = "AI Sparkle",
-                        tint = Color(0xFF00C9FF), // Bright tech blue/cyan
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(20.dp)
                             .offset(x = 18.dp, y = (-18).dp)
@@ -125,7 +119,7 @@ fun SplashScreen(onComplete: () -> Unit) {
                 text = "AI Pill Alarm",
                 fontSize = 42.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground, // Black in Light mode, White in Dark mode
                 letterSpacing = 1.sp,
                 modifier = Modifier.offset(y = slideAnim)
             )
@@ -136,7 +130,7 @@ fun SplashScreen(onComplete: () -> Unit) {
                 text = "SMART HEALTH COMPANION",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF00C9FF), // Accent color matching the sparkle
+                color = MaterialTheme.colorScheme.primary, // Sky Blue
                 letterSpacing = 4.sp,
                 modifier = Modifier.offset(y = slideAnim)
             )
@@ -147,5 +141,8 @@ fun SplashScreen(onComplete: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-    SplashScreen(onComplete = {})
+    // Wrap the preview in your theme so you can see the new colors!
+    AIPillAlarmTheme {
+        SplashScreen(onComplete = {})
+    }
 }
