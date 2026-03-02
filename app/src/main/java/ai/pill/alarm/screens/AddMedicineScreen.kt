@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Refresh
@@ -24,7 +25,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -38,15 +38,14 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import ai.pill.alarm.userinterface.AlarmSchedulerDialog
-import ai.pill.alarm.userinterface.AlarmSchedule
 import ai.pill.alarm.userinterface.HomeViewModel
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedicineScreen(viewModel: HomeViewModel,
-                      onBack: () -> Unit) {
+fun AddMedicineScreen(
+    viewModel: HomeViewModel,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -60,14 +59,10 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
     var isFlipped by remember { mutableStateOf(false) }
     var showDeleteWarning by remember { mutableStateOf(false) }
 
-    // Schedule States
-    val savedSchedules = remember { mutableStateListOf<AlarmSchedule>() }
-    var showAlarmDialog by remember { mutableStateOf(false) }
-
     // --- 2. LAUNCHERS & ANIMATIONS ---
     val rotation by animateFloatAsState(
         targetValue = if (isFlipped) 180f else 0f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "FlipAnimation"
     )
 
@@ -86,22 +81,36 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
         }
     }
 
-    val backgroundGradient = Brush.verticalGradient(
-        listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
-    )
-
     // --- 3. MAIN UI ---
-    Box(modifier = Modifier.fillMaxSize().background(backgroundGradient)) {
+    // Swapped Box for Scaffold to add the solid blue TopAppBar!
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopAppBar(
+                title = { Text("Add New Pill", fontSize = 24.sp, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        // Added a back arrow so the user isn't trapped!
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Go Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Sky Blue header
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary, // White text
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary // White icon
+                )
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues) // Respects the new header so content doesn't overlap
                 .verticalScroll(scrollState)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Add New Pill", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(24.dp))
+            // Removed the old "Add New Pill" Text from here, as it's in the top bar now!
 
             // --- 3D FLIP IMAGE CARD ---
             Box(
@@ -113,8 +122,8 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
                     }
                     .clickable { if (capturedImageUri != null) isFlipped = !isFlipped }
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .border(1.dp, Color(0xFF00C9FF).copy(alpha = 0.5f), RoundedCornerShape(24.dp)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (rotation <= 90f) {
@@ -131,7 +140,12 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
                             onClick = { permissionLauncher.launch(android.Manifest.permission.CAMERA) },
                             modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(Icons.Rounded.CameraAlt, contentDescription = "Take Photo", tint = Color(0xFFB0BEC5), modifier = Modifier.size(48.dp))
+                            Icon(
+                                Icons.Rounded.CameraAlt,
+                                contentDescription = "Take Photo",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
                         }
                     }
                 } else {
@@ -143,12 +157,12 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
                     ) {
                         Button(
                             onClick = { permissionLauncher.launch(android.Manifest.permission.CAMERA) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C9FF)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.fillMaxWidth(0.8f).padding(bottom = 16.dp)
                         ) {
-                            Icon(Icons.Rounded.Refresh, contentDescription = null, tint = Color(0xFF0F2027))
+                            Icon(Icons.Rounded.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Retake Photo", color = Color(0xFF0F2027), fontWeight = FontWeight.Bold)
+                            Text("Retake Photo", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                         }
 
                         Button(
@@ -165,7 +179,12 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
             }
 
             if (capturedImageUri != null) {
-                Text("Tap image to flip", color = Color(0xFF00C9FF), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp, bottom = 16.dp))
+                Text(
+                    "Tap image to flip",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                )
             } else {
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -177,83 +196,56 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
                 label = { Text("Pill Name (e.g., Aspirin)") },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00C9FF), unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                    focusedLabelColor = Color(0xFF00C9FF), unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = instructions,
                 onValueChange = { instructions = it },
                 label = { Text("Instructions (e.g., Take with food)") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00C9FF), unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                    focusedLabelColor = Color(0xFF00C9FF), unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                 ),
                 modifier = Modifier.fillMaxWidth().height(100.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- SCHEDULE SECTION ---
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Alarms", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                TextButton(onClick = { showAlarmDialog = true }) {
-                    Text(if (savedSchedules.isEmpty()) "+ Set Schedule" else "Edit Schedule", color = Color(0xFF00C9FF))
-                }
-            }
-
-            // Display the saved schedules
-            savedSchedules.forEach { schedule ->
-                val fullDaysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-                val daysString = schedule.days.joinToString(", ") { fullDaysOfWeek[it] }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(12.dp)).background(Color.White.copy(alpha = 0.05f)).padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(schedule.time, color = Color(0xFF00C9FF), fontWeight = FontWeight.Bold)
-                    Text(daysString, color = Color(0xFFB0BEC5), fontSize = 12.sp)
-                }
-            }
-
+            // Pushes the save button down
+            Spacer(modifier = Modifier.weight(1f, fill = false))
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Save Entry Button
+            // --- SAVE ENTRY BUTTON ---
             Button(
                 onClick = {
-                    // 1. Ensure they entered a name
                     if (pillName.isNotBlank()) {
-                        // 2. Create the Database Entity
                         val newMedicine = ai.pill.alarm.data.data.local.MedicineEntity(
                             name = pillName,
                             instructions = instructions,
                             imageUriAsString = capturedImageUri?.toString(),
-                            schedules = savedSchedules.toList()
+                            schedules = emptyList() // User adds alarms from Home Screen now!
                         )
-
-                        // 3. Send to Room Database!
                         viewModel.addMedicine(newMedicine)
-
-                        // 4. Navigate back to Home Screen
-                        onBack()
+                        onBack() // Returns straight to Home Screen
                     } else {
                         Toast.makeText(context, "Please enter a pill name", Toast.LENGTH_SHORT).show()
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C9FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Save Medication", color = Color(0xFF0F2027), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Save Medication", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -261,14 +253,12 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
     }
 
     // --- 4. DIALOGS ---
-
-    // Delete Warning Dialog
     if (showDeleteWarning) {
         AlertDialog(
             onDismissRequest = { showDeleteWarning = false },
-            containerColor = Color(0xFF203A43),
-            title = { Text("Delete Image?", color = Color.White, fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to delete this photo?", color = Color(0xFFB0BEC5)) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Delete Image?", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete this photo?", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -282,20 +272,8 @@ fun AddMedicineScreen(viewModel: HomeViewModel,
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteWarning = false }) {
-                    Text("Cancel", color = Color(0xFF00C9FF))
+                    Text("Cancel", color = MaterialTheme.colorScheme.primary)
                 }
-            }
-        )
-    }
-
-    // Trigger the external Alarm Scheduler Dialog
-    if (showAlarmDialog) {
-        AlarmSchedulerDialog(
-            onDismiss = { showAlarmDialog = false },
-            onSave = { newSchedules ->
-                savedSchedules.clear()
-                savedSchedules.addAll(newSchedules)
-                showAlarmDialog = false
             }
         )
     }

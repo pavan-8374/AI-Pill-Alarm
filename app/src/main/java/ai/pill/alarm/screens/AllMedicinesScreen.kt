@@ -1,18 +1,15 @@
 package ai.pill.alarm.screens
 
-import androidx.compose.foundation.background
+import ai.pill.alarm.data.data.local.MedicineEntity
+import ai.pill.alarm.userinterface.AlarmSchedulerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ai.pill.alarm.userinterface.HomeViewModel
@@ -21,55 +18,91 @@ import androidx.compose.foundation.lazy.items
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllMedicinesScreen(
-    viewModel: HomeViewModel, // We pass the Brain in to read the database
-    onBack: () -> Unit        // A function to handle the physical back arrow
+    viewModel: HomeViewModel,
+    onBack: () -> Unit
 ) {
-    // 1. Grab the live list of medicines directly from the database
     val medicineList by viewModel.allMedicines.collectAsState(initial = emptyList())
 
-    // 2. Use the same premium gradient background
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
-    )
+    // --- NEW: State variables to handle the Alarm Dialog ---
+    var showAlarmDialog by remember { mutableStateOf(false) }
+    var selectedMedicine by remember { mutableStateOf<MedicineEntity?>(null) }
 
-    Box(modifier = Modifier.fillMaxSize().background(backgroundGradient)) {
-        Scaffold(
-            containerColor = Color.Transparent,
-
-            // 3. Add a Top Bar with a Back Arrow
-            topBar = {
-                TopAppBar(
-                    title = { Text("All Medicines", color = Color.White, fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Go Back", tint = Color.White)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-                )
-            }
-        ) { paddingValues ->
-
-            // 4. Show the list of pills!
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 20.dp)
-            ) {
-                if (medicineList.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Your medicine cabinet is empty.", color = Color(0xFFB0BEC5))
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopAppBar(
+                title = { Text("All Medicines", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Go Back")
                     }
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(medicineList) { medicine ->
-                            // We reuse the exact same MedicineCard you built for the HomeScreen!
-                            MedicineCard(medicine = medicine)
-                        }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 20.dp)
+        ) {
+            if (medicineList.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        "Your medicine cabinet is empty.",
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(medicineList) { medicine ->
+
+                        // --- FIX: Pass the missing parameters to MedicineCard ---
+                        MedicineCard(
+                            medicine = medicine,
+                            viewModel = viewModel,
+                            onDelete = {
+                                // Tells the ViewModel to delete this specific pill from the database
+                                viewModel.deleteMedicine(medicine)
+                            },
+                            onSetAlarm = {
+                                // Remembers which pill we tapped and opens the dialog
+                                selectedMedicine = medicine
+                                showAlarmDialog = true
+                            }
+                        )
+
                     }
                 }
             }
         }
+    }
+
+    // Show the Alarm Dialog when triggered
+    if (showAlarmDialog && selectedMedicine != null) {
+        AlarmSchedulerDialog(
+            initialSchedules = selectedMedicine!!.schedules,
+            onDismiss = {
+                showAlarmDialog = false
+                selectedMedicine = null
+            },
+            onSave = { newSchedules ->
+
+                val updatedMedicine = selectedMedicine!!.copy(schedules = newSchedules)
+
+                //  Tell the ViewModel to update this pill in the database
+                viewModel.updateMedicine(updatedMedicine)
+
+                //  Close the dialog and clean up
+                showAlarmDialog = false
+                selectedMedicine = null
+            }
+        )
     }
 }

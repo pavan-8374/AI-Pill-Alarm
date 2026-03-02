@@ -15,6 +15,10 @@ class MedicineRepository(private val dao: MedicineDao) {
     suspend fun insertMedicine(medicine: MedicineEntity) {
         dao.insertMedicine(medicine)
     }
+    // Update an existing pill with new data
+    suspend fun updateMedicine(medicine: MedicineEntity) {
+        dao.updateMedicine(medicine)
+    }
 
     // 3. Delete a medicine
     suspend fun deleteMedicine(medicine: MedicineEntity) {
