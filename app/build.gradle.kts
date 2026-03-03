@@ -47,8 +47,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.material)
     implementation(libs.gson)
-    implementation(libs.generativeai.v070)
-
+    implementation(libs.generativeai.v080)
 // Compose UI
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -65,6 +64,7 @@ dependencies {
     implementation(libs.google.generativeai)
     implementation(libs.androidx.databinding.adapters)
     implementation(libs.androidx.appcompat.v161)
+    implementation(libs.common)
 
     // Debugging
     debugImplementation(libs.androidx.ui.tooling)
