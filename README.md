@@ -1,4 +1,4 @@
-# ======= AI Pill Alarm  =========
+#  AI Pill Alarm  
 This Appliction is Secure. Intelligent. Reliable. An Android application built with Jetpack Compose and Gemini AI to help users manage medications safely and never miss a dose.
 # Key Features of AI PILL ALARM
 ### AI Medication Insights: 
@@ -44,6 +44,17 @@ Build and Run:Click the Run button in Android Studio.
 #### SCHEDULE_EXACT_ALARM: To trigger reminders at precise times.
 #### USE_FULL_SCREEN_INTENT: To show the ringing screen over the lock screen.
 #### POST_NOTIFICATIONS: For Android 13+ status bar alerts.
+
+## App Screenshots
+<img width="1080" height="2424" alt="Splash Screen" src="https://github.com/user-attachments/assets/3c0cef64-96f0-46ad-8108-300f339f7b3c" />
+<img width="1080" height="2424" alt="Schedule" src="https://github.com/user-attachments/assets/fa17a6a1-1679-40b6-9b41-0da576d0ac66" />
+<img width="1080" height="2424" alt="My medicines" src="https://github.com/user-attachments/assets/2ee91cb1-9c37-48ae-8ce2-b1907c67c2b4" />
+<img width="1080" height="2424" alt="Delete" src="https://github.com/user-attachments/assets/72553ded-7a4d-48d9-a4e5-e869aad82939" />
+<img width="1080" height="2424" alt="Capture image" src="https://github.com/user-attachments/assets/8557c9c3-b235-4400-9496-14616df2edc2" />
+<img width="1080" height="2424" alt="Application logo" src="https://github.com/user-attachments/assets/1205032a-284a-407d-8974-60934283dbe8" />
+<img width="1080" height="2424" alt="Alarm ring" src="https://github.com/user-attachments/assets/d0eb9b7e-2979-46b7-b91c-96b917be6dcf" />
+<img width="1080" height="2424" alt="Add new pill" src="https://github.com/user-attachments/assets/8d9d75ac-0db5-4371-af32-71b0cb4f1707" />
+
 
 # Developed By 
 ### Rallapalli Pavan
