@@ -52,26 +52,24 @@ fun HomeScreen(
             )
         },
 
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.primary,
-                tonalElevation = 0.dp,
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                modifier = Modifier.height(88.dp)
+        // Floating Action Button
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onOpenAICamera,
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(76.dp) // Keeps your large, friendly button size!
             ) {
-                Spacer(modifier = Modifier.weight(1f))
-                FloatingActionButton(
-                    onClick = onOpenAICamera,
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(76.dp)
-                ) {
-                    Icon(Icons.Rounded.Add, contentDescription = "Add Medicine", modifier = Modifier.size(36.dp))
-                }
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add Medicine",
+                    modifier = Modifier.size(36.dp)
+                )
             }
-        }
+        },
+        // This ensures it sits neatly in the bottom right corner
+        floatingActionButtonPosition = FabPosition.End
     ) { paddingValues ->
 
         Column(

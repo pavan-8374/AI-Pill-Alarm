@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
+@OptIn(ExperimentalMaterial3Api::class)
 class AlarmActivity : ComponentActivity() {
 
     private var ringtone: Ringtone? = null
@@ -61,38 +62,49 @@ class AlarmActivity : ComponentActivity() {
 
         setContent {
             AIPillAlarmTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "Time to take your",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            // Colors perfectly match your Home Screen and Add Medicine Screen
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background,
+                                titleContentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.background
+                ) { paddingValues ->
+
+                    // Main layout
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
+                            .padding(paddingValues) // Safely pushes content below the TopBar
+                            .padding(horizontal = 32.dp, vertical = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // --- 1. TOP SECTION (Padding from very top) ---
-                        Spacer(modifier = Modifier.height(60.dp))
-
-                        Text(
-                            text = "Time to take your pill!",
-                            color = Color.Black, // Changed to Black
-                            fontSize = 33.sp,
-                            fontWeight = FontWeight.Medium
-                        )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
                             text = medicineName,
-                            fontSize = 40.sp, // Larger name
+                            fontSize = 40.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onBackground,
                             textAlign = TextAlign.Center
                         )
 
                         // 2. MIDDLE SECTION (Large Centered Image)
-                        Spacer(modifier = Modifier.weight(1f)) // Pushes content to center
+                        Spacer(modifier = Modifier.weight(1f))
 
                         if (!imageUri.isNullOrEmpty()) {
                             AsyncImage(
@@ -100,7 +112,7 @@ class AlarmActivity : ComponentActivity() {
                                 contentDescription = "Pill Image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .size(320.dp) // Increased size
+                                    .size(320.dp)
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                             )
@@ -127,23 +139,24 @@ class AlarmActivity : ComponentActivity() {
                             text = instructions,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground,                            textAlign = TextAlign.Center,
-                            lineHeight = 24.sp
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 32.sp
                         )
 
-                        Spacer(modifier = Modifier.weight(1f)) // Bottom spacing
+                        Spacer(modifier = Modifier.weight(1f))
 
                         // 3. BOTTOM SECTION (STOP BUTTON)
                         Button(
                             onClick = {
-                                // A. Stop Ringtone
+                                // Stop Ringtone
                                 ringtone?.stop()
 
-                                // B. Clear the notification tray
+                                // Clear the notification tray
                                 val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                                 notificationManager.cancel(medicineName.hashCode())
 
-                                // C. Exit full screen
+                                // Exit full screen
                                 finish()
                             },
                             modifier = Modifier

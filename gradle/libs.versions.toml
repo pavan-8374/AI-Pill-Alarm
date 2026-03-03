@@ -1,6 +1,7 @@
 [versions]
 appcompatVersion = "1.6.1"
 generativeaiVersion = "0.7.0"
+googleGenerativeai = "0.8.0"
 gson = "2.13.2"
 material = "1.13.0"
 agp = "8.9.1"
@@ -17,6 +18,7 @@ appcompat = "1.7.1"
 room = "2.8.4"
 coil = "2.7.0"
 databindingAdapters = "9.0.1"
+common = "0.10.0"
 
 [libraries]
 # Core Android
@@ -27,6 +29,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 generativeai-v070 = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeaiVersion" }
+generativeai-v080 = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "googleGenerativeai" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
@@ -51,6 +54,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-databinding-adapters = { group = "androidx.databinding", name = "databinding-adapters", version.ref = "databindingAdapters" }
+common = { group = "com.google.ai.client.generativeai", name = "common", version.ref = "common" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -3,8 +3,8 @@ package ai.pill.alarm.userinterface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,11 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,11 +29,10 @@ data class AlarmSchedule(val time: String, val days: List<Int>)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmSchedulerDialog(
-    initialSchedules: List<AlarmSchedule>, // <-- 1. NEW: Accept existing schedules
+    initialSchedules: List<AlarmSchedule>,
     onDismiss: () -> Unit,
     onSave: (List<AlarmSchedule>) -> Unit
 ) {
-    // <-- 2. NEW: Load the existing schedules into the state when the dialog opens!
     val currentSchedules = remember {
         mutableStateListOf<AlarmSchedule>().apply { addAll(initialSchedules) }
     }
@@ -42,14 +43,23 @@ fun AlarmSchedulerDialog(
     val daysOfWeek = listOf("S", "M", "T", "W", "T", "F", "S")
     val fullDaysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
-    Dialog(onDismissRequest = onDismiss) {
+    // 1. Allow the dialog to use more screen width so text has room to breathe
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp) // Keeps it from touching the absolute edges of the screen
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                // 2. MAKE THE WHOLE DIALOG SCROLLABLE
+                modifier = Modifier
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -60,7 +70,6 @@ fun AlarmSchedulerDialog(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 1. Interactive Clock Dial
                 Text(
                     "Set Time",
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -69,28 +78,35 @@ fun AlarmSchedulerDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                TimePicker(
-                    state = timePickerState,
-                    colors = TimePickerDefaults.colors(
-                        clockDialColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
-                        clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
-                        clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
-                        selectorColor = MaterialTheme.colorScheme.primary,
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        timeSelectorSelectedContentColor = MaterialTheme.colorScheme.primary,
-                        timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                        timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
-                        periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
-                        periodSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
-                        periodSelectorUnselectedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                        periodSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface
+                // 3. SHRINK THE TIME PICKER
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .scale(0.85f), // Shrinks the dial to 85% of its normal size
+                    contentAlignment = Alignment.Center
+                ) {
+                    TimePicker(
+                        state = timePickerState,
+                        colors = TimePickerDefaults.colors(
+                            clockDialColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                            clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                            clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                            selectorColor = MaterialTheme.colorScheme.primary,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            timeSelectorSelectedContentColor = MaterialTheme.colorScheme.primary,
+                            timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                            periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
+                            periodSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                            periodSelectorUnselectedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            periodSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface
+                        )
                     )
-                )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 2. Day Selector Row
                 Text(
                     "Select Days",
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -120,7 +136,6 @@ fun AlarmSchedulerDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 3. Add Alarm Button
                 Button(
                     onClick = {
                         val cal = Calendar.getInstance()
@@ -148,31 +163,40 @@ fun AlarmSchedulerDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 4. List of Added Alarms
-                LazyColumn(modifier = Modifier.heightIn(max = 120.dp)) {
-                    items(currentSchedules) { schedule ->
+                // 4. CHANGED FROM LazyColumn TO REGULAR Column FOR COMPATIBILITY WITH VERTICAL SCROLL
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    currentSchedules.forEach { schedule ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val daysString = schedule.days.joinToString(", ") { fullDaysOfWeek[it] }
+
+                            // 5. ADDED Modifier.weight(1f) TO PREVENT PUSHING THE DELETE BUTTON
                             Text(
-                                "${schedule.time} — $daysString",
+                                text = "${schedule.time} — $daysString",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp) // Gives some space before the trash can
                             )
 
-                            IconButton(onClick = { currentSchedules.remove(schedule) }, modifier = Modifier.size(24.dp)) {
+                            IconButton(
+                                onClick = { currentSchedules.remove(schedule) },
+                                modifier = Modifier.size(24.dp)
+                            ) {
                                 Icon(Icons.Rounded.Delete, contentDescription = "Remove", tint = Color(0xFFFF5252))
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // 5. Final Save Button
                 Button(
                     onClick = { onSave(currentSchedules) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),

@@ -12,7 +12,9 @@ import android.graphics.BitmapFactory
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import androidx.core.net.toUri
-
+import com.google.ai.client.generativeai.type.HarmCategory
+import com.google.ai.client.generativeai.type.BlockThreshold
+import com.google.ai.client.generativeai.type.SafetySetting
 class HomeViewModel(
     private val repository: MedicineRepository,
     private val alarmScheduler: AlarmScheduler // <-- 1. NEW: We brought the brain in!
@@ -50,9 +52,17 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 // IMPORTANT: Keep your API key here!
+                // 1. Initialize Gemini with relaxed Safety Settings for medical queries
                 val generativeModel = GenerativeModel(
-                    modelName = "gemini-1.5-flash",
-                    apiKey = "YOUR_GEMINI_API_KEY"
+                    modelName = "gemini-2.5-flash",
+                    apiKey = "Use your API Key Here",
+                    safetySettings = listOf(
+                        // Use BlockThreshold instead of HarmBlockThreshold
+                        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
+                        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.ONLY_HIGH),
+                        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.ONLY_HIGH),
+                        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.ONLY_HIGH)
+                    )
                 )
 
                 val uri = medicine.imageUriAsString.toUri()
@@ -62,13 +72,12 @@ class HomeViewModel(
 
                 if (bitmap != null) {
                     val prompt = """
-                        You are a highly intelligent medical assistant. Look at this image of a medication.
+                        Look at this image of a medication.
                         Please provide:
-                        1. The likely name of the medication.
-                        2. A brief 1-sentence description of what it is generally used for.
-                        3. Exactly 2 or 3 bullet points of common precautions or side effects.
+                        1. A brief 1-sentence description of what it is generally used for.
+                        2. Exactly 2 bullet points of common precautions or side effects.
                         Keep it extremely concise and easy to read. 
-                        Start your response with a clear disclaimer: "⚕️ AI Estimation (Consult a doctor):"
+                        Start your response with a clear disclaimer: "AI Estimation (Consult a doctor):"
                     """.trimIndent()
 
                     val response = generativeModel.generateContent(
@@ -84,8 +93,11 @@ class HomeViewModel(
                     repository.updateMedicine(updatedMedicine)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                val errorMedicine = medicine.copy(aiAdvice = "Error analyzing image. Please ensure you have internet access and try again.")
+                // 1. ADD THIS to print the actual error to your console
+                android.util.Log.e("GEMINI_TEST", "Error generating insights", e)
+
+                // 2. Temporarily show the real error on the pill card UI so you can read it easily
+                val errorMedicine = medicine.copy(aiAdvice = "Error: ${e.localizedMessage}")
                 repository.updateMedicine(errorMedicine)
             }
         }

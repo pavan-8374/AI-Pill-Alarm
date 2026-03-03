@@ -83,8 +83,8 @@ fun MedicineCard(
                         contentDescription = "Photo of ${medicine.name}",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(16.dp))
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(28.dp))
                     )
                 } else {
                     Box(
@@ -205,9 +205,9 @@ fun MedicineCard(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ... Top Action Buttons (Delete / Set Alarm) remain the same ...
+                // Top Action Buttons (Delete / Set Alarm)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // --- AI INSIGHTS SECTION ---
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -217,7 +217,7 @@ fun MedicineCard(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "AI Precautions",
                         color = MaterialTheme.colorScheme.primary,
